@@ -42,17 +42,17 @@
 
 	.label,
 	div#button,
-	div#projects {
+	div#project {
 		float: left;
 		font-size: 14px;
 		color: black;
 		line-height: 30px;
 	}
-	div#projects {
-		width: 400px;
+	div#project {
+		width: 300px;
 	}
 	div#button {
-		width: 300px;
+		width: 200px;
 		padding: 0 10px;
 	}
 	</style>
@@ -62,10 +62,8 @@
 	<p></p>
 	<div id="search">
 	    <label class='label''>项目空间：</label>
-		<div id="projects">        
-				<select type="text" placeholder="项目空间" class="form-control">
-					
-				</select>
+		<div id="project">        
+			<select id="projectId" type="text" placeholder="项目空间" class="form-control"></select>
 		</div>
 		<div id="button">
 			<button click="query">查看</button>

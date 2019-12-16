@@ -8,25 +8,54 @@ dataArray = [{
     taskName: "6",
     taskUpdateTime: "7"
 }]
-//创建xhr对象 
-var xhr = new XMLHttpRequest();
-//设置xhr请求的超时时间
-xhr.timeout = 3000;
-//设置响应返回的数据格式
-xhr.responseType = "text";
-//创建一个 post 请求，采用异步
-xhr.open("GET", "https://ide2-cn-beijing.data.aliyun.com/rest/folder/module/list?projectId=58695&tenantId=289796650594818&useType=0&labelLevels=2&pageNum=1&pageSize=100000");
-//注册相关事件回调处理函数
-xhr.onload = function(e) { 
-  if(this.status == 200 || this.status == 304){
-    var flowData = processResponse(this.responseText);
-    // flowData = dataArray;
-	showReport(flowData);
-  }
-};
 
-xhr.send();
+function queryTasks() {
+    //创建xhr对象 
+    var xhr = new XMLHttpRequest();
+    //设置xhr请求的超时时间
+    xhr.timeout = 3000;
+    //设置响应返回的数据格式
+    xhr.responseType = "text";
+    //创建一个 post 请求，采用异步
+    xhr.open("GET", "https://ide2-cn-beijing.data.aliyun.com/rest/folder/module/list?projectId=58695&tenantId=289796650594818&useType=0&labelLevels=2&pageNum=1&pageSize=100000");
+    //注册相关事件回调处理函数
+    xhr.onload = function(e) { 
+    if(this.status == 200 || this.status == 304){
+        var flowData = processResponse(this.responseText);
+        // flowData = dataArray;
+        showReport(flowData);
+    }
+    };
 
+    xhr.send();
+}
+
+function init() {
+    var xhr = new XMLHttpRequest();
+    xhr.timeout = 3000;
+    xhr.responseType = "text";
+    xhr.open("GET", "https://ide2-cn-beijing.data.aliyun.com/header/user/history?appId=&projectSelect=true&currentUrl=https%3A%2F%2Fide2-cn-beijing.data.aliyun.com%2F&");
+    xhr.onload = function(e) { 
+        if(this.status == 200 || this.status == 304){
+            var projectData = JSON.parse(this.responseText);
+            initProjectOptions(projectData.data.projectList);
+        }
+    };
+
+    xhr.send();
+}
+init();
+
+
+initProjectOptions = function( projects) {
+    
+    for(var project of projects) {
+        var optionText = project.projectName; 
+        var optionValue = project.projectId; 
+
+        $('#projectId').append("<option value=\"" + optionValue + "\">"  + optionText + "</option>");
+    }
+}
 
 showReport = function ( flows ) {
   $("#jqGrid").jqGrid({
