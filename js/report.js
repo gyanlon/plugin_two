@@ -36,32 +36,13 @@ showReport = function ( flows ) {
     //   url: 'mock_data.js',
     //   datatype: "json",
       colModel: [
-          {label: '流程', name: 'flowName', index: "flowName", sortable: false, width: 40, key: true},
-          {label: '流程创建时间', name: 'flowCreateTime', index: "flowCreateTime", sortable: false, width: 20},
-          {label: '节点Owner', name: 'taskOwner', width: 15},
-          {
-              label: '节点类型', name: 'taskType', width: 15, sortable: false, formatter: function (value, options, row) {
-                  if (value === -1) {
-                      result = '<span class="label label-init">初始状态</span>';
-                  } else if (value === 0) {
-                      result = '<span class="label label-downloadfail">爬取失败</span>';
-                  } else if (value === 1) {
-                      result = '<span class="label label-downloadsuccess">爬取成功</span>';
-                  } else if (value === 2) {
-                      result = '<span class="label label-parsefail">解析失败</span>';
-                  } else if (value === 3) {
-                      result = '<span class="label label-parsesuccess">解析成功</span>';
-                  } else {
-                      console.error("Unkown status : "  + value);
-                      result = '<span class="label label-unkown">未知状态</span>';
-                  }
-
-                  return result;
-              }
-          },
-          {label: '节点ID', name: 'taskId', sortable: false, width: 15},
-          {label: '节点名称', name: 'taskName', sortable: false, width: 30},
-          {label: '节点更新时间', name: 'taskUpdateTime', sortable: false, width: 20}
+          {label: '流程', name: 'flowName', index: "flowName", sortable: true, width: 40, key: true},
+          {label: '流程创建时间', name: 'flowCreateTime', index: "flowCreateTime", sortable: true, width: 20},
+          {label: '节点Owner', name: 'taskOwner', width: 12},
+          {label: '节点类型', name: 'taskType', width: 12, sortable: true, formatter: getTaskTypeName},
+          {label: '节点ID', name: 'taskId',    width: 18, sortable: true, formatter: getTaskId},
+          {label: '节点名称', name: 'taskName', sortable: false, width: 33},
+          {label: '节点更新时间', name: 'taskUpdateTime', sortable: true, width: 20}
       ],
       viewrecords: true,
       height: 385,
@@ -102,40 +83,153 @@ var vm = new Vue({
   el: '#rrapp',
   data: {
       q: {
-          loginName: null,
-          startTime: null,
-          endTime: null,
-          taskType: "",
-          taskStatus: "",
-          hotelId: null,
-          platform: "",
-          id: null
+          projectId: null
       },
       showList: true,
       title: null,
-      task: {
-          id: null,
-          hotelId: null,
-          loginName: null,
-          platform: null,
-          taskType: null,
-          batchNumber: null
+      projectOptions: {
+          "test": 1
       },
-      taskTypeOptions: {
-          HOS_SCORE : "HOS分数",
-          COMMENTS_INFO : "好评和差评",
-          CONTRAST_SCORE : "评分",
-          ROOM_TYPE_PRICE : "房型和房价",
-          ROOM_STATUS : "房态",
-          TRADING : "公明收益"
-      },
-      platformOptions: {
-          meituan : "美团",
-          ctrip : "携程",
-          fliggy : "飞猪",
-          qunar : "去哪儿",
-          elong : "艺龙"
-      },
+      projects:[
+        {
+          "projectOwnerBaseId": "1788833693517547",
+          "maxFlowNode": 30,
+          "useProxyOdpsAccount": false,
+          "destination": 0,
+          "isAllowDownload": 1,
+          "disableDevelopment": false,
+          "projectMode": 3,
+          "gmtCreate": 1548235113000,
+          "isDefault": 0,
+          "envTypes": [
+            "DEV",
+            "PRD"
+          ],
+          "tenantId": 289796650594818,
+          "projectDesc": "oyo_midware_data_test",
+          "residentArea": "private",
+          "projectName": "oyo_midware_data_test",
+          "projectIdentifier": "oyo_midware_data_test",
+          "projectId": 54922,
+          "status": 0,
+          "developmentType": 4
+        },
+        {
+          "projectOwnerBaseId": "1788833693517547",
+          "maxFlowNode": 30,
+          "useProxyOdpsAccount": false,
+          "destination": 0,
+          "isAllowDownload": 1,
+          "disableDevelopment": false,
+          "projectMode": 3,
+          "gmtCreate": 1556103819000,
+          "isDefault": 0,
+          "envTypes": [
+            "DEV",
+            "PRD"
+          ],
+          "tenantId": 289796650594818,
+          "projectDesc": "oyo中间件部门公共操作",
+          "residentArea": "private",
+          "projectName": "oyo_midware_base_data",
+          "projectIdentifier": "oyo_midware_base_data",
+          "projectId": 58695,
+          "status": 0,
+          "developmentType": 4
+        },
+        {
+          "projectOwnerBaseId": "1788833693517547",
+          "maxFlowNode": 30,
+          "useProxyOdpsAccount": false,
+          "destination": 0,
+          "isAllowDownload": 1,
+          "disableDevelopment": false,
+          "projectMode": 3,
+          "gmtCreate": 1573715752000,
+          "isDefault": 0,
+          "envTypes": [
+            "DEV",
+            "PRD"
+          ],
+          "tenantId": 289796650594818,
+          "projectDesc": "数据中台项目空间",
+          "residentArea": "private",
+          "projectName": "oyo_dc",
+          "projectIdentifier": "oyo_dc",
+          "projectId": 64485,
+          "status": 0,
+          "developmentType": 4
+        },
+        {
+          "projectOwnerBaseId": "1788833693517547",
+          "maxFlowNode": 30,
+          "useProxyOdpsAccount": false,
+          "destination": 0,
+          "isAllowDownload": 1,
+          "disableDevelopment": false,
+          "projectMode": 3,
+          "gmtCreate": 1573716833000,
+          "isDefault": 0,
+          "envTypes": [
+            "DEV",
+            "PRD"
+          ],
+          "tenantId": 289796650594818,
+          "projectDesc": "主数据项目空间（苏斌）",
+          "residentArea": "private",
+          "projectName": "oyo_masterdata",
+          "projectIdentifier": "oyo_masterdata",
+          "projectId": 64487,
+          "status": 0,
+          "developmentType": 4
+        },
+        {
+          "projectOwnerBaseId": "1788833693517547",
+          "maxFlowNode": 30,
+          "useProxyOdpsAccount": false,
+          "destination": 0,
+          "isAllowDownload": 1,
+          "disableDevelopment": false,
+          "projectMode": 3,
+          "gmtCreate": 1574423356000,
+          "isDefault": 0,
+          "envTypes": [
+            "DEV",
+            "PRD"
+          ],
+          "tenantId": 289796650594818,
+          "projectDesc": "阿波罗相关的数据开发及数据分析",
+          "residentArea": "private",
+          "projectName": "oyo_apollo",
+          "projectIdentifier": "oyo_apollo",
+          "projectId": 64782,
+          "status": 0,
+          "developmentType": 4
+        },
+        {
+          "projectOwnerBaseId": "1788833693517547",
+          "maxFlowNode": 30,
+          "useProxyOdpsAccount": false,
+          "destination": 0,
+          "isAllowDownload": 1,
+          "disableDevelopment": false,
+          "projectMode": 3,
+          "gmtCreate": 1574423484000,
+          "isDefault": 0,
+          "envTypes": [
+            "DEV",
+            "PRD"
+          ],
+          "tenantId": 289796650594818,
+          "projectDesc": "技术风险部相关的数据开发及数据分析",
+          "residentArea": "private",
+          "projectName": "oyo_technical_risk",
+          "projectIdentifier": "oyo_technical_risk",
+          "projectId": 64783,
+          "status": 0,
+          "developmentType": 4
+        }
+      ],
       error: false,
       errorMsg: null,
       alerts: []
@@ -281,92 +375,6 @@ var vm = new Vue({
   }
 });
 
-var mock_data = `{
-    "errCode": 0,
-    "requestId": "0a98a74215759692837534498e5ab4",
-    "data": {
-      "folderList": [
-      {
-        "index": 0,
-        "version": 0,
-        "locked": 0,
-        "subType": 0,
-        "bizId": 10011633,
-        "type": 0,
-        "fileCnt": 0,
-        "id": 1184748,
-        "folderItemType": 2,
-        "parentFolderItemId": "bizroot",
-        "folderItemName": "account_hotel_wide_table_uat",
-        "folderItemCreator": "200133248230535291",
-        "folderItemCreatetime": "2019-08-13 10:51:13",
-        "folderItemUpdater": "200133248230535291",
-        "folderItemUpdatetime": "2019-08-13 10:51:13",
-        "folderId": "00erpfkgiu3m4auqr5nw52yo",
-        "appId": 58695,
-        "start": 0,
-        "limit": 2147483647
-      },
-      {
-        "engineType": "MaxCompute",
-        "index": 1,
-        "displayName": "MaxCompute",
-        "version": 1,
-        "locked": 0,
-        "subType": 0,
-        "bizId": 10016888,
-        "type": 10,
-        "fileCnt": 0,
-        "id": 1234125,
-        "folderItemType": 2,
-        "parentFolderItemId": "50ubnkudhr9kfmf0pdj0sr59",
-        "folderItemName": "folderMaxCompute",
-        "folderItemCreator": "217292257727314460",
-        "folderItemCreatetime": "2019-12-06 21:12:24",
-        "folderItemUpdater": "217292257727314460",
-        "folderItemUpdatetime": "2019-12-06 21:12:24",
-        "folderId": "0c6f5gmlnrl86prrk8siq3bv",
-        "appId": 58695,
-        "start": 0,
-        "limit": 2147483647
-      }
-      ],
-      "fileList": [
-      {
-        "labelId": -1,
-        "parentId": -1,
-        "isOdps": true,
-        "createUser": "217292257727314460",
-        "tenantId": 289796650594818,
-        "locked": 0,
-        "isProtected": 1,
-        "bizId": 10016888,
-        "appId": 58695,
-        "fileFolderId": "yk95wlgz0sp8gf9cb5huc9pk",
-        "fileId": 500380333,
-        "fileName": "vt_search_poi_end",
-        "fileType": 99,
-        "useType": 0,
-        "nodeId": 100239734,
-        "currentVersion": 0,
-        "owner": "217292257727314460",
-        "lastEditUser": "217292257727314460",
-        "lastEditTime": "2019-12-08 21:51:12",
-        "fileLockUser": "217292257727314460",
-        "fileLockUserName": "lihno.zeng",
-        "fileLockStatus": 1,
-        "fileDelete": 0,
-        "commitStatus": 0,
-        "isAutoParse": 1,
-        "filePublish": 0,
-        "start": 0,
-        "limit": 2147483647
-      }
-      ]},
-    "success": true
-  }`;
-
-
 function processResponse(response) {
     var res = JSON.parse(response);
     // alert(res.data);
@@ -399,4 +407,39 @@ function processResponse(response) {
     return taskNodes;
 }
 
-console.log(processResponse(JSON.parse(mock_data)));
+function getTaskTypeName(value, options, row) {
+
+    var enumTaskType = {
+        "99":"虚拟节点",
+        "10":"ODPSSQL",
+        "23":"集成节点",
+        "1000015":"ADBSQL",
+        "6":"Shell",
+        "221":"Python",
+        "1010":"SQL组件节点",
+        "24":"ODPSscript",
+        "1101":"分支节点",
+        "1100":"赋值节点",
+        "1000017":"ADBPostgreSQL",
+        "1002":"机器学习PAI",
+        "1089":"跨租户节点",
+        "225":"ODPSSpark"
+    };
+    var result = '<span class="label label-unkown">未知状态</span>';
+
+    for (var key in enumTaskType) {
+        if (parseInt(value) === parseInt(key)) {
+            result = '<span class="label label-init">' + enumTaskType[key] + '</span>';
+            break;
+        } 
+    }
+    return result;
+}
+
+function getTaskId(value, options, row) {
+    var result = '<span style="color:yellow">未提交</span>';
+    if (value !== undefined && value !== "") {   
+        result = '<span class="label label-init">' + value + '</span>';
+    }
+    return result;
+}

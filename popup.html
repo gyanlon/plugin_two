@@ -18,7 +18,6 @@
     <script type="text/javascript" src="js/plugins/jqgrid/grid.locale-cn.js"></script>
     <script type="text/javascript" src="js/plugins/jqgrid/jquery.jqGrid.min.js"></script>
 	<script type="text/javascript" src="js/plugins/ztree/jquery.ztree.all.min.js"></script>	
-	<script type="text/javascript" src="js/report.js"></script>
 	<style>
 	body {
 		font-family: 'Microsoft Yahei';
@@ -26,14 +25,54 @@
 		min-height: 600px;
 	}
 	a {margin-right: 10px;}
+
+	table#jqGrid{
+		background-color:rgba(0, 0, 0, 0.2)
+	}
+	#xx {
+		margin: 10px;
+		display: block;
+	}
+	div#search, div#rrapp{
+		width: 800px;
+		height: 30px;
+		margin: 10px;
+		display: block;
+	}
+
+	.label,
+	div#button,
+	div#projects {
+		float: left;
+		font-size: 14px;
+		color: black;
+		line-height: 30px;
+	}
+	div#projects {
+		width: 400px;
+	}
+	div#button {
+		width: 300px;
+		padding: 0 10px;
+	}
 	</style>
 </head>
 <body>
 	<h1>流程信息统计</h1>
 	<p></p>
-	<div id="report"></div>
+	<div id="search">
+	    <label class='label''>项目空间：</label>
+		<div id="projects">        
+				<select type="text" placeholder="项目空间" class="form-control"><option value="54922">oyo_midware_data_test</option><option value="58695">oyo_midware_base_data</option><option value="64485">oyo_dc</option><option value="64487">oyo_masterdata</option><option value="64782">oyo_apollo</option><option value="64783">oyo_technical_risk</option></select>
+		</div>
+		<div id="button">
+			<button click="query">查看</button>
+		</div>
+	</div>
 	<div>
 		<table id="jqGrid"></table>
 	</div>
+
+	<script type="text/javascript" src="js/report.js"></script>
 </body>
 </html>
