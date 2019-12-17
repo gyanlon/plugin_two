@@ -1,30 +1,19 @@
 document.cookie = 'cross-site-cookie=bar; SameSite=Strict';
-dataArray = [{
-    flowName: "1",
-    flowCreateTime: "2",
-    taskOwner: "3",
-    taskType: "4",
-    taskId: "5",
-    taskName: "6",
-    taskUpdateTime: "7"
-}]
+currentFlows = [];
+showReport();
 
-function queryTasks() {
-    //创建xhr对象 
+function queryTasks(projectId, tenantId) {
     var xhr = new XMLHttpRequest();
-    //设置xhr请求的超时时间
     xhr.timeout = 3000;
-    //设置响应返回的数据格式
     xhr.responseType = "text";
-    //创建一个 post 请求，采用异步
-    xhr.open("GET", "https://ide2-cn-beijing.data.aliyun.com/rest/folder/module/list?projectId=58695&tenantId=289796650594818&useType=0&labelLevels=2&pageNum=1&pageSize=100000");
-    //注册相关事件回调处理函数
+    var url = `https://ide2-cn-beijing.data.aliyun.com/rest/folder/module/list?projectId=${projectId}&tenantId=${tenantId}&useType=0&labelLevels=2&pageNum=1&pageSize=10000`;
+    xhr.open("GET", url);
+
     xhr.onload = function(e) { 
-    if(this.status == 200 || this.status == 304){
-        var flowData = processResponse(this.responseText);
-        // flowData = dataArray;
-        showReport(flowData);
-    }
+        if(this.status == 200 || this.status == 304){
+            currentFlows = processResponse(this.responseText);
+            refreshReport(currentFlows);
+        }
     };
 
     xhr.send();
@@ -47,21 +36,33 @@ function init() {
 init();
 
 
-initProjectOptions = function( projects) {
+function initProjectOptions( projects) {
     
+    $('#projectId').append("<option value=\"\">请选择项目空间</option>");
     for(var project of projects) {
         var optionText = project.projectName; 
-        var optionValue = project.projectId; 
+        var optionValue = project.projectId + "_" + project.tenantId;
 
         $('#projectId').append("<option value=\"" + optionValue + "\">"  + optionText + "</option>");
     }
+
+    $("select#projectId").change(function(){
+        var selectedProject = $(this).children("option:selected").val();
+
+        if(selectedProject !== "") {
+            var ids = selectedProject.split("_");
+            queryTasks(ids[0], ids[1]);
+        } else {
+            refreshReport([]);
+        }
+    });
 }
 
-showReport = function ( flows ) {
+function showReport() {
   $("#jqGrid").jqGrid({
 
     datatype: "local",
-    data: flows,
+    data: currentFlows,
     //   url: 'mock_data.js',
     //   datatype: "json",
       colModel: [
@@ -80,7 +81,7 @@ showReport = function ( flows ) {
       rownumbers: true,
       rownumWidth: 25,
       autowidth: true,
-    //   multiselect: true,
+      //multiselect: true,
       pager: "#jqGridPager",
       jsonReader: {
           root: "list", //数据列表模型
@@ -100,170 +101,171 @@ showReport = function ( flows ) {
       beforeRequest: function () {
       }
   });
+}
 
-  vm.resize();
-  $(window).resize(function () {
-      vm.resize();
-  });
-};
+function refreshReport(data) {
+  currentFlows = data;
+  $("#jqGrid").jqGrid('clearGridData')
+  .jqGrid('setGridParam', { data: currentFlows, datatype:'local' })
+  .trigger('reloadGrid', [{ page: 1}]);
+}
 
+// var vm = new Vue({
+//   el: '#rrapp',
+//   data: {
+//       q: {
+//           projectId: null
+//       },
+//       showList: true,
+//       title: null,
+//       projectOptions: {
+//           "test": 1
+//       },
+//       projects:[],
+//       error: false,
+//       errorMsg: null,
+//       alerts: []
+//   },
+//   methods: {
+//       query: function () {
+//           console.info("query " + JSON.stringify(vm.q));
+//           if (this.validate(vm.q, searchValidator)) {
+//               this.reload();
+//           }
+//       },
+//       add: function () {
+//           vm.showList = false;
+//           vm.title = "新增";
 
-var vm = new Vue({
-  el: '#rrapp',
-  data: {
-      q: {
-          projectId: null
-      },
-      showList: true,
-      title: null,
-      projectOptions: {
-          "test": 1
-      },
-      projects:[],
-      error: false,
-      errorMsg: null,
-      alerts: []
-  },
-  methods: {
-      query: function () {
-          console.info("query " + JSON.stringify(vm.q));
-          if (this.validate(vm.q, searchValidator)) {
-              this.reload();
-          }
-      },
-      add: function () {
-          vm.showList = false;
-          vm.title = "新增";
+//           this.resetSearchForm();
+//       },
+//       saveOrUpdate: function () {
+//           if (!this.validate(vm.task, createValidator)) {
+//               return;
+//           }
+//           var url = "crawler/task/create";
+//           $.ajax({
+//               type: "POST",
+//               url: baseURL + url,
+//               contentType: "application/json",
+//               data: JSON.stringify(vm.task),
+//               success: function (r) {
+//                   if (r.code === '200') {
+//                       alert('操作成功', function () {
+//                           vm.reload();
+//                       });
+//                   } else {
+//                       alert(r.message);
+//                   }
+//               },
+//               error: function (r) {
+//                   console.error(r);
+//                   alert(r.message);
+//               }
+//           });
+//       },
+//       resetSearchForm : function () {
 
-          this.resetSearchForm();
-      },
-      saveOrUpdate: function () {
-          if (!this.validate(vm.task, createValidator)) {
-              return;
-          }
-          var url = "crawler/task/create";
-          $.ajax({
-              type: "POST",
-              url: baseURL + url,
-              contentType: "application/json",
-              data: JSON.stringify(vm.task),
-              success: function (r) {
-                  if (r.code === '200') {
-                      alert('操作成功', function () {
-                          vm.reload();
-                      });
-                  } else {
-                      alert(r.message);
-                  }
-              },
-              error: function (r) {
-                  console.error(r);
-                  alert(r.message);
-              }
-          });
-      },
-      resetSearchForm : function () {
+//           vm.errorMsg = null;
+//           vm.error = false;
+//           for (const [key, value] of Object.entries(vm.q)) {
+//               vm.q[key] = "";
+//           }
 
-          vm.errorMsg = null;
-          vm.error = false;
-          for (const [key, value] of Object.entries(vm.q)) {
-              vm.q[key] = "";
-          }
+//           return this.validate(vm.q, searchValidator) ;
+//       },
+//       resetSearch : function () {
+//           if (this.resetSearchForm()) {
+//               this.reload();
+//           }
+//       },
+//       validate: function (data, checker) {
+//           vm.error = false;
+//           vm.alerts = [];
 
-          return this.validate(vm.q, searchValidator) ;
-      },
-      resetSearch : function () {
-          if (this.resetSearchForm()) {
-              this.reload();
-          }
-      },
-      validate: function (data, checker) {
-          vm.error = false;
-          vm.alerts = [];
+//           for (const [key, value] of Object.entries(data)) {
+//               checker.setValue(key, value);
+//           }
 
-          for (const [key, value] of Object.entries(data)) {
-              checker.setValue(key, value);
-          }
+//           checker.validateAll();
 
-          checker.validateAll();
+//           if(checker.errors.length > 0) {
+//               vm.error = true;
+//               for(var i=0; i<checker.errors.length; i++) {
+//                   var err = checker.errors[i];
+//                   vm.alerts.push({name: err.name, message: err.message});
+//               }
+//           }
+//           return !vm.error;
+//       },
+//       gencmd: function () {
 
-          if(checker.errors.length > 0) {
-              vm.error = true;
-              for(var i=0; i<checker.errors.length; i++) {
-                  var err = checker.errors[i];
-                  vm.alerts.push({name: err.name, message: err.message});
-              }
-          }
-          return !vm.error;
-      },
-      gencmd: function () {
+//           var idList = "";
+//           var grid = $("#jqGrid");
+//           var selIds = $("#jqGrid").jqGrid('getGridParam', 'selarrrow');   // selected ids
+//           console.debug(selIds);
 
-          var idList = "";
-          var grid = $("#jqGrid");
-          var selIds = $("#jqGrid").jqGrid('getGridParam', 'selarrrow');   // selected ids
-          console.debug(selIds);
+//           var strIdList = JSON.stringify(selIds).replace(/\"/g,"");
 
-          var strIdList = JSON.stringify(selIds).replace(/\"/g,"");
+//           $.ajax({
+//               type: "post",
+//               url: baseURL + 'crawler/task/gen',
+//               contentType: "application/json",
+//               data: strIdList,
+//               success: function (r) {
+//                   if (r.code === '200') {
+//                       alert("发送成功! 任务ID列表为：" + strIdList);
+//                       console.info('操作成功');
+//                   } else {
+//                       alert("发送出错:" + r.message);
+//                       console.error(r.message);
+//                   }
+//               },
+//               error: function (d) {
+//                   alert('error');
+//               }
+//           });
+//       },
+//       reload: function () {
+//           vm.showList = true;
+//           var page = $("#jqGrid").jqGrid('getGridParam', 'page');
+//           $("#jqGrid").jqGrid('setGridParam', {
+//               postData: vm.q,
+//               page: page
+//           }).trigger("reloadGrid");
+//           this.resize();
+//       },
+//       resize: function () {
+//         $('.ui-jqgrid-bdiv').height($(window).height() - $(".grid-btn").height() - 100);
+//       },
+//       cancel: function () {
 
-          $.ajax({
-              type: "post",
-              url: baseURL + 'crawler/task/gen',
-              contentType: "application/json",
-              data: strIdList,
-              success: function (r) {
-                  if (r.code === '200') {
-                      alert("发送成功! 任务ID列表为：" + strIdList);
-                      console.info('操作成功');
-                  } else {
-                      alert("发送出错:" + r.message);
-                      console.error(r.message);
-                  }
-              },
-              error: function (d) {
-                  alert('error');
-              }
-          });
-      },
-      reload: function () {
-          vm.showList = true;
-          var page = $("#jqGrid").jqGrid('getGridParam', 'page');
-          $("#jqGrid").jqGrid('setGridParam', {
-              postData: vm.q,
-              page: page
-          }).trigger("reloadGrid");
-          this.resize();
-      },
-      resize: function () {
-        $('.ui-jqgrid-bdiv').height($(window).height() - $(".grid-btn").height() - 100);
-      },
-      cancel: function () {
+//           vm.error = false;
+//           vm.errorMsg = "";
+//           this.reload();
+//       },
+//       checkSearch(event) {
+//           this.check(event, searchValidator);
+//       },
+//       checkCreation(event) {
+//           this.check(event, createValidator);
+//       },
+//       check(event, checker) {
+//           checker.setValue(event.target.name, event.target.value);
+//           checker.validate(event.target.name, event.target.value);
 
-          vm.error = false;
-          vm.errorMsg = "";
-          this.reload();
-      },
-      checkSearch(event) {
-          this.check(event, searchValidator);
-      },
-      checkCreation(event) {
-          this.check(event, createValidator);
-      },
-      check(event, checker) {
-          checker.setValue(event.target.name, event.target.value);
-          checker.validate(event.target.name, event.target.value);
-
-          vm.error = false;
-          vm.alerts = [];
-          if(checker.errors.length > 0) {
-              vm.error = true;
-              for(var i=0; i<checker.errors.length; i++) {
-                  var err = checker.errors[i];
-                  vm.alerts.push({name: err.name, message: err.message});
-              }
-          }
-      }
-  }
-});
+//           vm.error = false;
+//           vm.alerts = [];
+//           if(checker.errors.length > 0) {
+//               vm.error = true;
+//               for(var i=0; i<checker.errors.length; i++) {
+//                   var err = checker.errors[i];
+//                   vm.alerts.push({name: err.name, message: err.message});
+//               }
+//           }
+//       }
+//   }
+// });
 
 function processResponse(response) {
     var res = JSON.parse(response);
